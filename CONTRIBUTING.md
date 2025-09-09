@@ -11,7 +11,7 @@ We use **GitHub flow** + **Agile Scrum practices**:
 1. Work in **feature branches**  
 2. Submit changes via **Pull Requests (PRs)**  
 3. Keep `main` branch stable  
-4. Track tasks on our [Scrum Board](<insert-your-link-here>)  
+4. Track tasks on our [Scrum Board](https://alustudent-team1.atlassian.net/jira/software/projects/MSPE/boards/34?atlOrigin=eyJpIjoiYjg2ZjViOGNhM2FhNDUzNmFhZDg1MzA5OTdlOGU3ZmMiLCJwIjoiaiJ9) 
 
 ---
 
@@ -108,7 +108,7 @@ Attach if available.
 - Python: [e.g. 3.11]  
 - Browser: [e.g. Chrome 115]
 
-#### 📌 Additional Context  
+#### Additional Context  
 Any other details?
 
 ---
