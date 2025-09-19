@@ -68,5 +68,63 @@ INSERT INTO Transaction (TransactionType, Amount, Currency, DateTime, ReferenceN
 CREATE INDEX idx_transaction_datetime ON Transaction(DateTime);
 
 
+-- Participants(Transaction) Table
+CREATE TABLE TransactionParticipant (
+    ParticipantID INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Unique participant entry identifier',
+    TransactionID INT NOT NULL COMMENT 'Foreign key to transaction',
+    UserID INT NOT NULL COMMENT 'Foreign key to user',
+    Role ENUM('sender', 'receiver', 'agent') NOT NULL COMMENT 'Participant role in transaction',
+    FOREIGN KEY (TransactionID) REFERENCES Transaction(TransactionID),
+    FOREIGN KEY (UserID) REFERENCES User(UserID)
+) COMMENT='Participants involved in each transaction';
+
+-- Insert sample data into TransactionParticipant
+INSERT INTO TransactionParticipant (TransactionID, UserID, Role) VALUES
+(1, 4, 'sender'),
+(1, 3, 'agent'),
+(2, 1, 'sender'),
+(2, 2, 'receiver'),
+(3, 4, 'sender'),
+(3, 2, 'receiver'),
+(3, 3, 'agent'),
+(4, 1, 'sender'),
+(5, 4, 'sender');
+
+-- SystemLog Table
+CREATE TABLE SystemLog (
+    LogID INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Unique system log identifier',
+    Timestamp DATETIME NOT NULL COMMENT 'Log entry timestamp',
+    LogLevel ENUM('info', 'warning', 'error') NOT NULL COMMENT 'Level of log severity',
+    Message TEXT NOT NULL COMMENT 'Log message content'
+) COMMENT='Logs related to system processes like ETL, validation, errors';
+
+-- Index time stamp for log queries
+CREATE INDEX idx_systemlog_timestamp ON SystemLog(Timestamp);
+
+-- Insert sample data into SystemLog
+INSERT INTO SystemLog (Timestamp, LogLevel, Message) VALUES
+('2025-09-15 09:00:00', 'info', 'ETL process started'),
+('2025-09-15 09:01:00', 'info', 'Transaction data loaded'),
+('2025-09-15 09:02:00', 'warning', 'Missing reference number in transaction 4'),
+('2025-09-15 09:03:00', 'error', 'Failed to process transaction 6'),
+('2025-09-15 09:04:00', 'info', 'ETL process completed');
+
+-- Promotions Table
+CREATE TABLE Promotion (
+    PromotionID INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Unique promotion identifier',
+    PromotionType VARCHAR(50) COMMENT 'Type of promotion or alert',
+    Message TEXT COMMENT 'Promotion or alert message content',
+    ValidFrom DATE COMMENT 'Promotion start date',
+    ValidTo DATE COMMENT 'Promotion end date'
+) COMMENT='Promotions or security alerts associated with transactions';
+
+-- Insert sample data into Promotion
+INSERT INTO Promotion (PromotionType, Message, ValidFrom, ValidTo) VALUES
+('promotion', 'Double cashback on deposits', '2025-09-01', '2025-09-30'),
+('security alert', 'Unauthorized login detected', '2025-09-12', '2025-09-18'),
+('promotion', 'Fee waiver on first 3 transactions', '2025-09-05', '2025-09-20'),
+('promotion', 'Refer a friend and earn 5000 RWF', '2025-09-10', '2025-10-10'),
+('security alert', 'Password change required', '2025-09-14', '2025-09-21');
+
 
 
