@@ -1,0 +1,153 @@
+{
+  "//": "File Name:   json_schemas.json",
+  "//": "Description: This JSON schema file defines the structure and constraints for representing MTN Mobile Money transactions in JSON format.",
+  "//":               "It shows how a Transaction entity relates to User, TransactionCategory, and TransactionParticipant entities.",
+  "//":               "The schema enforces data types such as string, number, and object, with enumerations for constrained values.",
+  "//":               "Includes an example of a full transaction nested JSON with embedded user info and category details.",
+  "//":               "Also documents mapping between the relational database schema (tables and foreign keys) and the JSON fields.",
+  "//": "Author:      Ange Santhiana Kaze",
+  "//": "Date:        2025-09-19",
+  
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MobileMoneyTransaction",
+  "description": "A mobile money transaction with related user and category info embedded",
+  "type": "object",
+  "properties": {
+    "TransactionID": {
+      "type": "integer",
+      "description": "Unique transaction identifier"
+    },
+    "TransactionType": {
+      "type": "string",
+      "description": "Type of transaction, e.g., deposit, payment"
+    },
+    "Amount": {
+      "type": "number",
+      "description": "Transaction amount"
+    },
+    "Currency": {
+      "type": "string",
+      "description": "Currency code"
+    },
+    "DateTime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of transaction"
+    },
+    "ReferenceNumber": {
+      "type": "string",
+      "description": "Payment reference or token"
+    },
+    "BalanceAfterTransaction": {
+      "type": "number",
+      "description": "User balance after the transaction"
+    },
+    "Status": {
+      "type": "string",
+      "enum": ["confirmed", "failed", "pending"],
+      "description": "Transaction status"
+    },
+    "MessageText": {
+      "type": "string",
+      "description": "Original SMS message content"
+    },
+    "Category": {
+      "type": "object",
+      "description": "Transaction category details",
+      "properties": {
+        "CategoryID": {
+          "type": "integer"
+        },
+        "CategoryName": {
+          "type": "string"
+        },
+        "Description": {
+          "type": "string"
+        }
+      },
+      "required": ["CategoryID", "CategoryName"]
+    },
+    "Participants": {
+      "type": "array",
+      "description": "List of participants involved in the transaction",
+      "items": {
+        "type": "object",
+        "properties": {
+          "UserID": {
+            "type": "integer"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "PhoneNumber": {
+            "type": "string"
+          },
+          "UserType": {
+            "type": "string",
+            "enum": ["sender", "receiver", "agent"]
+          },
+          "Role": {
+            "type": "string",
+            "enum": ["sender", "receiver", "agent"]
+          }
+        },
+        "required": ["UserID", "Role"]
+      }
+    }
+  },
+  "required": [
+    "TransactionID",
+    "TransactionType",
+    "Amount",
+    "Currency",
+    "DateTime",
+    "Status",
+    "Category",
+    "Participants"
+  ],
+  "examples": [
+    {
+      "TransactionID": 12345,
+      "TransactionType": "payment",
+      "Amount": 1500.75,
+      "Currency": "RWF",
+      "DateTime": "2024-05-10T16:30:51Z",
+      "ReferenceNumber": "REF987654321",
+      "BalanceAfterTransaction": 5000.00,
+      "Status": "confirmed",
+      "MessageText": "You have paid 1500.75 RWF to Jane Smith",
+      "Category": {
+        "CategoryID": 2,
+        "CategoryName": "payment",
+        "Description": "Payment for goods or services"
+      },
+      "Participants": [
+        {
+          "UserID": 101,
+          "Name": "John Doe",
+          "PhoneNumber": "+250700123456",
+          "UserType": "sender",
+          "Role": "sender"
+        },
+        {
+          "UserID": 202,
+          "Name": "Jane Smith",
+          "PhoneNumber": "+250788001234",
+          "UserType": "receiver",
+          "Role": "receiver"
+        }
+      ]
+    }
+  ],
+  "mapping": {
+    "Transaction": "root object properties (TransactionID, TransactionType, Amount, Currency, DateTime, ReferenceNumber, BalanceAfterTransaction, Status, MessageText)",
+    "TransactionCategory": "nested object under 'Category' field (CategoryID, CategoryName, Description)",
+    "TransactionParticipant": "array under 'Participants', linked by TransactionID",
+    "User": "embedded within 'Participants' with UserID, Name, PhoneNumber, UserType",
+    "Foreign Key Relationships": {
+      "Transaction.CategoryID": "refs TransactionCategory.CategoryID",
+      "TransactionParticipant.TransactionID": "refs Transaction.TransactionID",
+      "TransactionParticipant.UserID": "refs User.UserID"
+    }
+  }
+}
