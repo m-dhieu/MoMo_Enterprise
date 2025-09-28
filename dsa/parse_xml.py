@@ -8,12 +8,13 @@
 # Usage:  python3 parse_xml.py [input_xml_path] [output_json_path]
 #--------------------------------------------------------------------------------
 
-import xml.etree.ElementTree as ET
+from lxml import etree as ET
 from datetime import datetime
 import re
 import json
 import sys
 import os
+from pathlib import Path
 
 def parse_sms_date(ms_timestamp):
     """
@@ -29,9 +30,17 @@ def extract_transaction_info(body):
     balance after transaction, status, and full message text.
     """
     transaction = {}
+    # Improve regex to:
+    # match amount with commas and currency (e.g., "1,000 RWF")
     amount_match = re.search(r'([\d,]+) (\w{3})', body)
     if amount_match:
-        transaction['Amount'] = float(amount_match.group(1).replace(',', ''))
+        # Remove commas before float conversion
+        # Check for empty string to prevent ValueError
+        amount_str = amount_match.group(1).replace(',', '')
+        if amount_str:
+            transaction['Amount'] = float(amount_str)
+        else:
+            transaction['Amount'] = None
         transaction['Currency'] = amount_match.group(2)
     if 'received' in body.lower():
         transaction['TransactionType'] = 'deposit'
@@ -43,10 +52,13 @@ def extract_transaction_info(body):
         transaction['TransactionType'] = 'withdrawal'
     else:
         transaction['TransactionType'] = 'other'
+    # Extract datetime from SMS body text
     dt_match = re.search(r'at (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})', body)
     transaction['DateTime'] = dt_match.group(1) if dt_match else None
+    # Extract reference number from SMS body text
     ref_match = re.search(r'(Financial Transaction Id:|TxId:)\s*([\d]+)', body)
     transaction['ReferenceNumber'] = ref_match.group(2) if ref_match else None
+    # Extract balance after transaction and converting to float safely
     bal_match = re.search(r'new balance:?([\d,]+) (\w{3})', body.lower())
     transaction['BalanceAfterTransaction'] = float(bal_match.group(1).replace(',', '')) if bal_match else None
     transaction['Status'] = 'confirmed'  # Default
@@ -58,14 +70,21 @@ def extract_users(body):
     Extracts user details from SMS text (sender and receiver info).
     """
     users = []
-    sender_match = re.search(r'from ([\w\s]+) \(([*\d]+)\)', body)
+
+    # Improve regex to:
+    # capture sender name strictly as letters and spaces only,
+    # and match phone number including digits and stars, ignoring case
+    sender_match = re.search(r'from ([A-Za-z\s]+) \(([*\d]+)\)', body, re.IGNORECASE)
     if sender_match:
         users.append({
             'Name': sender_match.group(1).strip(),
             'PhoneNumber': sender_match.group(2).strip(),
             'UserType': 'sender'
         })
-    receiver_match = re.search(r'to ([\w\s]+) (\d+)', body)
+    # Improve receiver regex to:
+    # non-greedy matching to avoid trailing extra words,
+    # with optional space, and parentheses around phone number included
+    receiver_match = re.search(r'to ([A-Za-z\s]+?) ?\(?(\d+)\)?', body, re.IGNORECASE)
     if receiver_match:
         users.append({
             'Name': receiver_match.group(1).strip(),
@@ -87,7 +106,10 @@ def load_transactions(file_path):
     Parses the XML file and returns a list of transaction dicts for JSON serialization.
     """
     try:
-        tree = ET.parse(file_path)
+        # Allow recovery from common XML syntax errors instead of failing
+        # Enable huge_tree to handle big datasets (SMS transaction file)
+        parser = ET.XMLParser(recover=True, huge_tree=True)
+        tree = ET.parse(file_path, parser)
     except (ET.ParseError, FileNotFoundError) as e:
         print(f"Error reading XML file '{file_path}': {e}")
         return []
@@ -150,8 +172,9 @@ def save_transactions_json(transactions, json_path):
 
 # Main program flow
 if __name__ == '__main__':
-    input_xml_path = sys.argv[1] if len(sys.argv) > 1 else 'data/raw/modified_sms_v2.xml'
-    output_json_path = sys.argv[2] if len(sys.argv) > 2 else 'data/processed/transactions.json'
+    # Fix path to avoid file-not-found errors
+    input_xml_path = sys.argv[1] if len(sys.argv) > 1 else '../data/raw/modified_sms_v2.xml'
+    output_json_path = sys.argv[2] if len(sys.argv) > 2 else '../data/processed/transactions.json'
 
     print(f"Loading XML data from {input_xml_path} ...")
     transactions = load_transactions(input_xml_path)

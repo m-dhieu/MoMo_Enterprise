@@ -86,7 +86,8 @@ def insert_participants(cursor, transaction_id, participants):
         )
 
 def main():
-    input_json = sys.argv[1] if len(sys.argv) > 1 else 'data/processed/transactions.json'
+    # Fix path to avoid file-not-found errors
+    input_json = sys.argv[1] if len(sys.argv) > 1 else '../data/processed/transactions.json'
     transactions = load_json(input_json)
 
     conn = connect_db()
