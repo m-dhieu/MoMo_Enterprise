@@ -13,7 +13,7 @@
 - Description: Retrieves a list of all transactions
 - Request:
   ```
-  curl -u admin:password http://localhost:8080/transactions
+  curl -u admin:password http://localhost:8090/transactions
   ```
 - Response:
   ```
@@ -42,7 +42,7 @@
 - Description: Retrieves one transaction by ID
 - Request:
   ```
-  curl -u admin:password http://localhost:8080/transactions/1
+  curl -u admin:password http://localhost:8090/transactions/1
   ```
 - Response:
   ```
@@ -64,7 +64,7 @@
 - Description: Adds a new transaction
 - Request:
   ```
-  curl -u admin:password -X POST http://localhost:8080/transactions \
+  curl -u admin:password -X POST http://localhost:8090/transactions \
   -H "Content-Type: application/json" \
   -d '{"TransactionType":"payment","Amount":500,"Currency":"RWF","DateTime":"2025-09-27 15:20:00", ... }'
   ```
@@ -80,7 +80,7 @@
 - Description: Updates existing transaction
 - Request:
   ```
-  curl -u admin:password -X PUT http://localhost:8080/transactions/1 \
+  curl -u admin:password -X PUT http://localhost:8090/transactions/1 \
   -H "Content-Type: application/json" \
   -d '{...updated transaction JSON...}'
   ```
@@ -97,7 +97,7 @@
 - Description: Deletes a transaction
 - Request:
   ```
-  curl -u admin:password -X DELETE http://localhost:8080/transactions/1
+  curl -u admin:password -X DELETE http://localhost:8090/transactions/1
   ```
 - Response:
   - 200 OK: Confirmation message with deleted transaction
