@@ -1,0 +1,54 @@
+<!--
+  ----------------------------------------------------------------------------
+  File Name:   index.html
+  Description: Implements the frontend dashboard for visualizing Mobile Money 
+               SMS transactions data. It includes charts rendered using 
+	       Chart.js, displaying transaction volumes over time, amounts 
+	       distribution, and types distribution.
+  Author:      Monica Dhieu
+  Usage:       Serve using local HTTP server eg `python3 -m http.server 3000`
+  Note:        The frontend fetches data from the backend API running on 
+	       localhost:8090 with Basic Auth (use the username 'admin', and
+	       password 'password')
+  ----------------------------------------------------------------------------
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Monica Dhieu" />
+    <meta name="description" content="Dashboard to display Mobile Money SMS transaction data with interactive charts." />
+    <title>MoMo SMS Transactions Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>MoMo SMS Transactions Dashboard</h1>
+
+    <!-- transaction volume chart section -->
+    <section>
+        <h2>Transaction Volume Over Time</h2>
+        <canvas id="volumeChart"></canvas>
+    </section>
+
+    <!-- amount distribution chart section -->
+    <section>
+        <h2>Amounts Distribution</h2>
+        <canvas id="amountChart"></canvas>
+    </section>
+
+    <!-- transaction types pie chart section -->
+    <section>
+        <h2>Transaction Types Distribution</h2>
+        <canvas id="typeChart"></canvas>
+    </section>
+</div>
+
+<!-- external js for data fetching, authentication, & chart creation -->
+<script src="chart_handler.js"></script>
+</body>
+</html>
+

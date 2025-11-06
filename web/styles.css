@@ -1,0 +1,46 @@
+/* 
+  ---------------------------------------------------------------------    
+  File Name:   styles.css
+  Description: Styling for the MoMo SMS Transactions Dashboard frontend
+               Uses MTN brand colors
+  Author:      Monica Dhieu
+  ---------------------------------------------------------------------  
+*/
+
+/* page body styling */
+body {
+    font-family: Arial, sans-serif;  
+    margin: 20px;                       
+    background-color: #fffde7;     
+    color: #333;                        
+}
+
+/* centered main container with max width for readability */
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+/* main title styling */
+h1 {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #ffcc00;              
+    text-shadow: 1px 1px 0px #6e260e;   
+}
+
+/* section card styling */
+section {
+    background: white;
+    padding: 20px;
+    margin-bottom: 40px;
+    border-radius: 8px;                   
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+}
+
+/* charts styling */
+canvas {
+    max-width: 100%;
+    height: 300px;   
+}
+
