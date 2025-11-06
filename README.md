@@ -4,6 +4,7 @@
 
 * [Overview](#overview)
 * [Features](#features)
+* [Demo Video](#demo-video)
 * [Repository Structure](#repository-structure)
 * [Architecture](#architecture)
 * [Database](#database)
@@ -19,7 +20,7 @@
 
 ## Overview
 
-This repository contains an enterprise-level full-stack application (coming soon) for processing Mobile Money (MoMo) SMS data.  
+This repository contains an enterprise-level full-stack application for processing Mobile Money (MoMo) SMS data.  
 The system ingests SMS data in XML format, performs data cleaning and categorization, persists the results in a relational database, provides a REST API for transaction data, and offers a frontend dashboard for analytics and visualization.
 
 ## Features
@@ -27,13 +28,17 @@ The system ingests SMS data in XML format, performs data cleaning and categoriza
 * XML parsing using `xml.etree.ElementTree`  
 * Data cleaning and normalization (dates, amounts, phone numbers)  
 * Transaction categorization (payments, withdrawals, transfers, etc.)  
-* Relational database persistence (MySQL by default, PostgreSQL supported)  
+* Relational database persistence (MySQL)  
 * REST API server in plain Python with Basic Authentication  
 * Data Structures & Algorithms performance comparison (linear search vs dictionary lookup)  
 * JSON exports for dashboard analytics  
-* Frontend visualization (charts, tables, trends)  
+* Frontend visualization (charts)  
 * Modular ETL pipeline (`parse` → `clean` → `categorize` → `load` → `export`)  
 * Unit tests for core ETL stages
+
+## Demo Video
+
+[Demo Video](https://youtu.be/FLaZANm46pw) to walk-through how to visualize data in the dashboard UI.
 
 ## Repository Structure
 
@@ -45,52 +50,22 @@ MoMo_Enterprise/
 ├── .gitignore                   # Files for Git to ignore    
 ├── .env                         # Environment configs, DB URLs/path to SQLite
 ├── requirements.txt             # Python dependencies
-├── index.html                   # Static frontend dashboard entry
-├── web/
-│   ├── styles.css               # Dashboard styling   
-│   ├── chart_handler.js         # Fetch + render charts/tables   
-│   └── assets/
-│       └── architecture.jpeg    # Architecture diagram
+├── web/			 # web assets, Architecture diagram
 ├── data/
-│   ├── raw/                     
-│   │   └── modified_sms_v2.xml  # Original XML (gitignored)
+│   ├── raw/                     # Original XML (gitignored)
 │   ├── processed/               # JSON exports
-│   │   ├── dashboard.json
-│   │   └── transactions.json        
 │   └── logs/                    # ETL logs, dead letter files
-│       ├── etl.log                
-│       └── dead_letter/
-├── database/                                   
-│       └── database_setup.sql   # DB file
-├── etl/
-│   ├── __init__.py
-│   ├── config.py                # ETL config
-│   ├── clean_normalize.py       # Cleaning and normalization
-│   ├── categorize.py            # Categorization rules
-│   ├── load_db.py               # DB creation/upsert
-│   └── run.py                   # ETL pipeline runner
+├── database/                    # DB files
 ├── examples/
 │   └── json_schemas.json        # JSON schema
 ├── api/                         
-│   ├── __init__.py
-│   ├── app.py                   # FastAPI app with /transactions, /analytics
 │   ├── server.py                # REST API server
-│   ├── db.py                    # Database helpers
-│   └── schemas.py               # Pydantic models
 ├── dsa/
 │   ├── parse_xml.py             # XML parser
 │   └── compare_dsa_search.py    # DSA comparison
-├── docs/
-│   ├── erd_diagram.pdf          # ERD design rationale
-│   └── api_docs.md              # API documentation
-├── scripts/                     # Run, rebuild, serve app
-│   ├── run_etl.sh                
-│   ├── export_json.sh            
-│   └── serve_frontend.sh         
+├── docs/			 # ERD design rationale, API documentation, team report
+├── screenshots			 # Test Screenshots 
 └── tests/                       # Unit tests
-     ├── test_parse_xml.py
-     ├── test_clean_normalize.py
-     └── test_categorize.py
 ```
 
 ## Architecture
@@ -107,7 +82,7 @@ View Architecture Diagram on [web](https://viewer.diagrams.net/?tags=%7B%7D&ligh
 
 ## Database
 
-The project uses a relational database (MySQL default; PostgreSQL supported) to persist clean, categorized SMS transactions.  
+The project uses a relational database (MySQL) to persist clean, categorized SMS transactions.  
 * Normalized tables: `User`, `Transaction`, `TransactionParticipant`  
 * ETL handles creation and upsert operations  
 * REST API performs queries and updates efficiently  
@@ -165,8 +140,7 @@ This project was developed and tested on:
 <details>
 <summary>Thierry Gabin -- Frontend & Data Visualization</summary>
 <ul>
-<li><a href="https://github.com/tgabin1">Github</a></li>
-<li><a href="https://www.linkedin.com/in/#">LinkedIn</a></li>    
+<li><a href="https://github.com/tgabin1">Github</a></li>    
 <li><a href="mailto:thierry.gabin@example.com">e-mail</a></li>
 </ul>
 </details>
@@ -174,8 +148,7 @@ This project was developed and tested on:
 <details>
 <summary>Santhiana Kaze -- DevOps & Monitoring</summary>
 <ul>
-<li><a href="https://github.com/ksanthiana">Github</a></li>
-<li><a href="https://www.linkedin.com/in/#">LinkedIn</a></li>    
+<li><a href="https://github.com/ksanthiana">Github</a></li>    
 <li><a href="mailto:santhiana.kaze@example.com">e-mail</a></li>
 </ul>
 </details>
@@ -192,7 +165,12 @@ This project was developed and tested on:
 
 **Setup:**  
 * Clone the repo  
-* Run `setup_project.sh` to install dependencies  
+* Run `pip install -r requirements.txt` to install dependencies
+* Move to dsa/ and run `python3 parse_xml.py` to process and save clean json data
+* Move to project root and run `python3 api/server.py` to start backend server
+* From a new terminal move to project root and run `python3 -m http.server -d web/ 3000` to start frontend server
+* Interact with visualized data in the frontend dashboard (Username: admin, Password: password)
+* Test endpoints in terminal as instructed in `docs/api_docs.md`
 * Create `.env` for database connection strings if needed  
 * Create your MySQL database and initialize schema:
 
@@ -204,13 +182,12 @@ mysql -u your_user -p momo_db < database/database_setup.sql
 * Parse raw XML data with `dsa/parse_xml.py`  
 * Load parsed transactions into JSON `data/processed/transactions.json`  
 * Load parsed transactions into MySQL DB via `etl/load_db.py`  
-* REST API on `api/server.py`  
+* REST API on `api/server.py` with endpoints  
 * DSA performance test in `dsa/compare_dsa_search.py`
+* Frontend dashboard for detailed analytics in web/
 
-**Coming Soon:**  
-* Frontend dashboard for detailed analytics  
+**Coming Soon:**   
 * Automated ETL orchestration and monitoring  
-* Enhanced API with analytics endpoints  
 
 ## Contributing
 
@@ -226,4 +203,4 @@ Reach out to any listed team member for support, queries, or feedback.
 
 ---
 
-*Monday, September 29, 2025*
+*Thursday, November 6, 2025*
