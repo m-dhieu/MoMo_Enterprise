@@ -1,10 +1,12 @@
 #--------------------------------------------------------------------------------
 # Script Name: server.py
 # Description: Implements a REST API using Python's built-in http.server.
-#              Provides CRUD endpoints for mobile money SMS transactions'
+#              Provides CRUD endpoints for mobile money SMS transactions
 #              Secured by Basic Authentication.
+#              Adds CORS headers for frontend integration.
 # Author: Janviere Munezero
-# Date:   2025-09-28
+# Author: Monica Dhieu (modified for CORS support and changed port 8080 to 8090)
+# Date:   2025-09-28 (modified 2025-11-06)
 # Usage:  python3 server.py
 #--------------------------------------------------------------------------------
 
@@ -13,10 +15,14 @@ import json
 import base64
 from urllib.parse import urlparse
 
-# Path to the JSON file that stores transaction data
-DATA_FILE = 'data/processed/transactions.json'
+# Path to JSON file that stores transaction data
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_FILE = os.path.join(BASE_DIR, '..', 'data', 'processed', 'transactions.json')
+DATA_FILE = os.path.normpath(DATA_FILE)
 
-# Authentication credentials 
+
+# Authentication credentials
 USERNAME = 'admin'
 PASSWORD = 'password'
 
@@ -71,14 +77,29 @@ class AuthHandlerMixin:
             return False
 
 class TransactionHandler(AuthHandlerMixin, BaseHTTPRequestHandler):
-    # Request handler for implementing RESTful transaction endpoints with Basic Authentication.
+    # Request handler for implementing RESTful transaction endpoints with 
+    # Basic Authentication and CORS.
 
     def send_json_response(self, code, data):
         # Send JSON response with HTTP status code and data object.
         self.send_response(code)
+
+        # Required headers for CORS allowing frontend access
         self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')  # Allow all origins
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Authorization, Content-Type')
         self.end_headers()
+
         self.wfile.write(json.dumps(data).encode())
+
+    def do_OPTIONS(self):
+        # Handle preflight CORS OPTIONS request
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Authorization, Content-Type')
+        self.end_headers()
 
     def parse_path(self):
         # Parse the URL path into components.
@@ -189,7 +210,7 @@ class TransactionHandler(AuthHandlerMixin, BaseHTTPRequestHandler):
         else:
             self.send_json_response(404, {"error": "Endpoint not found"})
 
-def run(server_class=HTTPServer, handler_class=TransactionHandler, port=8080):
+def run(server_class=HTTPServer, handler_class=TransactionHandler, port=8090):
     # Set up and run the server on specified port.
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
@@ -198,3 +219,4 @@ def run(server_class=HTTPServer, handler_class=TransactionHandler, port=8080):
 
 if __name__ == '__main__':
     run()
+
